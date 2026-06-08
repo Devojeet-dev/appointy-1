@@ -1,63 +1,88 @@
 # Appointy
 
-Minimal, secure instructions for running the Appointy doctor-appointment project locally.
+A full-stack doctor appointment booking application built with the MERN stack.
 
-## Summary
+## What is Appointy?
 
-Appointy is a MERN-stack web application with three roles: patient, doctor, and admin. It provides appointment booking, profile management, and payment integration (Razorpay).
+Appointy allows patients to browse doctors, book appointments, and manage their profile. Doctors can view and update schedules, while admins can manage doctors and appointments.
 
-## Quick Start
+This repository uses a single branch: `main`.
 
-1. Install dependencies for backend and frontend:
+## Highlights
+
+- Patient, doctor, and admin roles
+- Appointment booking and management
+- Profile editing and dashboard views
+- Razorpay payment support
+- Secure JWT-based authentication
+
+## Technologies
+
+- Frontend: React
+- Backend: Node.js + Express
+- Database: MongoDB
+- Payment: Razorpay
+- Authentication: JWT
+
+## Quick start
+
+1. Install dependencies:
 
 ```bash
-# from project root
 npm install
-cd admin && npm install || true
-cd frontend && npm install || true
-cd backend && npm install || true
+cd admin && npm install
+cd frontend && npm install
+cd backend && npm install
 ```
 
-2. Create environment files (do not commit them):
+2. Create the backend environment file:
 
-Create a `.env` file in the `backend` folder with values for:
+Create `backend/.env` with your values:
 
-- `MONGO_URI`
-- `JWT_SECRET`
-- `RAZORPAY_API_KEY`
-- any other provider keys you use
+```env
+MONGO_URI=your_mongodb_connection_string
+JWT_SECRET=your_jwt_secret
+RAZORPAY_API_KEY=your_razorpay_api_key
+CLOUDINARY_NAME=your_cloudinary_name
+CLOUDINARY_API_KEY=your_cloudinary_api_key
+CLOUDINARY_SECRET_KEY=your_cloudinary_secret
+ADMIN_EMAIL=admin@example.com
+ADMIN_PASSWORD=admin-password
+```
 
-3. Run the app (example):
+3. Start the application:
 
 ```bash
-# start backend (from backend/)
-npm run dev
-# start frontend (from frontend/)
+cd backend
 npm run dev
 ```
 
-## Files changed here
-
-- Removed sensitive architecture notes from the repository to avoid accidental exposure.
-- Added `.gitignore` to ignore `.env` and `ARCHITECTURE.md`.
-
-If `ARCHITECTURE.md` was previously committed, see the removal steps below.
-
-## Security notes
-
-- Never commit `.env` files or secrets to the repository. Use environment variables or a secret manager in CI/deployment.
-- This repository now ignores `.env` files and `ARCHITECTURE.md`.
-
-## How to remove `ARCHITECTURE.md` from the repository (if already committed)
-
-Run the following to remove the file from the index and push the change:
+In another terminal:
 
 ```bash
-git rm --cached ARCHITECTURE.md
-git commit -m "Remove sensitive architecture file"
-git push origin main
+cd frontend
+npm run dev
 ```
 
-If you need to purge the file from all history, consider using the `BFG Repo-Cleaner` or `git filter-repo` — this rewrites history and requires force-pushing.
+If you are using the admin panel:
 
----
+```bash
+cd admin
+npm run dev
+```
+
+## Repository structure
+
+- `backend/` – Express server, API routes, models, and configuration
+- `frontend/` – Customer-facing React application
+- `admin/` – Admin dashboard React application
+
+## Security reminder
+
+- Do not commit `.env` files to GitHub.
+- This repository ignores `.env` files in `.gitignore`.
+- If sensitive files were previously committed, remove them from git history before pushing.
+
+## Notes for GitHub visitors
+
+This repo is intended for local development and review. Clone it, add your own environment config, and run the backend and frontend separately.
