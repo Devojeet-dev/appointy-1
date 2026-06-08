@@ -1,16 +1,12 @@
 import React, { useContext, useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { AppContext } from '../context/AppContext'
 import axios from 'axios'
 import { toast } from 'react-toastify'
-import { assets } from '../assets/assets'
 
 const MyAppointments = () => {
   const { backendUrl, token, getDoctorsData } = useContext(AppContext)
-  const navigate = useNavigate()
   const { doctors } = useContext(AppContext)
   const [appointments, setAppointments] = useState([])
-  const [payment, setPayment] = useState('')
 
   const months = [" ", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
 
@@ -54,49 +50,7 @@ const MyAppointments = () => {
 
   }
 
-  const initPay = (order) => {
-    const options = {
-      key: import.meta.env.VITE_RAZORPAY_KEY_ID,
-      amount: order.amount,
-      currency: order.currency,
-      name: 'Appointment Payment',
-      description: "Appointment Payment",
-      order_id: order.id,
-      receipt: order.receipt,
-      handler: async (response) => {
 
-        console.log(response)
-
-        try {
-          const { data } = await axios.post(backendUrl + "/api/user/verifyRazorpay", response, { headers: { token } });
-          if (data.success) {
-            navigate('/my-appointments')
-            getUserAppointments()
-          }
-        } catch (error) {
-          console.log(error)
-          toast.error(error.message)
-        }
-      }
-    };
-    const rzp = new window.Razorpay(options);
-    rzp.open();
-  }
-
-  // Function to make payment using razorpay
-  const appointmentRazorpay = async (appointmentId) => {
-    try {
-      const { data } = await axios.post(backendUrl + '/api/user/payment-razorpay', { appointmentId }, { headers: { token } })
-      if (data.success) {
-        initPay(data.order)
-      } else {
-        toast.error(data.message)
-      }
-    } catch (error) {
-      console.log(error)
-      toast.error(error.message)
-    }
-  }
 
   useEffect(() => {
     if (token) {
@@ -127,9 +81,6 @@ const MyAppointments = () => {
 
 
 
-  const simulateStripe = () => toast.info("Redirecting to Stripe...")
-  const simulateRazorpay = () => toast.info("Opening Razorpay...")
-
   return (
     <div>
       <p className='pb-3 mt-12 text-lg font-medium text-gray-600 border-b'>My appointments</p>
@@ -149,8 +100,7 @@ const MyAppointments = () => {
             </div>
             <div></div>
             <div className='flex flex-col gap-2 justify-end text-sm text-center'>
-              {!item.cancelled && !item.payment && !item.isCompleted && payment !== item._id && <button onClick={() => setPayment(item._id)} className='text-[#696969] sm:min-w-48 py-2 border rounded hover:bg-primary hover:text-white transition-all duration-300'>Pay Online</button>}
-              {!item.cancelled && !item.payment && !item.isCompleted && payment === item._id && <button onClick={() => appointmentRazorpay(item._id)} className='text-[#696969] sm:min-w-48 py-2 border rounded hover:bg-gray-100 hover:text-white transition-all duration-300 flex items-center justify-center'><img className='max-w-20 max-h-5' src={assets.razorpay_logo} alt="" /></button>}
+              {!item.cancelled && !item.payment && !item.isCompleted && <button className='sm:min-w-48 py-2 border border-blue-400 rounded text-blue-500 bg-blue-50 cursor-default'>💵 Pay at Counter</button>}
               {!item.cancelled && item.payment && !item.isCompleted && <button className='sm:min-w-48 py-2 border rounded text-[#696969]  bg-[#EAEFFF]'>Paid</button>}
 
               {item.isCompleted && <button className='sm:min-w-48 py-2 border border-green-500 rounded text-green-500'>Completed</button>}

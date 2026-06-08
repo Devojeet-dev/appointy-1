@@ -9,7 +9,9 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node server.js",
-    "server": "nodemon server.js"
+    "server": "nodemon server.js",
+    "seed": "node scripts/seed.js",
+    "seed:clear": "node scripts/seed.js --clear"
   },
   "dependencies": {
     "bcrypt": "^6.0.0",

@@ -28,51 +28,69 @@ const loginAdmin = async (req, res) => {
 
 // API for adding Doctor
 const addDoctor = async (req, res) => {
-  try {
-    const { name, email, password, speciality, degree, experience, about, fees, address } = req.body;
-    const imageFile = req.file;
+    try {
+        const { name, email, password, speciality, degree, experience, about, fees, address } = req.body;
 
-    if (!name || !email || !password || !speciality || !degree || !experience || !about || !fees || !address) {
-      return res.status(400).json({ success: false, message: "Missing Details" });
+        if (!name || !email || !password || !speciality || !degree || !experience || !about || !fees || !address) {
+            return res.status(400).json({ success: false, message: "Missing Details" });
+        }
+
+        if (!validator.isEmail(email)) {
+            return res.status(400).json({ success: false, message: "Please enter a valid email" });
+        }
+
+        if (password.length < 8) {
+            return res.status(400).json({ success: false, message: "Please enter a strong password" });
+        }
+
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(password, salt);
+
+        const imageFile = req.file;
+
+        let imageUrl = '';
+        if (imageFile) {
+            try {
+                // multer memoryStorage → NO disk path, use buffer stream
+                imageUrl = await new Promise((resolve, reject) => {
+                    const stream = cloudinary.uploader.upload_stream(
+                        { resource_type: 'image' },
+                        (error, result) => {
+                            if (error) return reject(error);
+                            resolve(result.secure_url);
+                        }
+                    );
+                    stream.end(imageFile.buffer);
+                });
+            } catch (uploadErr) {
+                console.error('Cloudinary upload failed:', uploadErr.message || uploadErr);
+                imageUrl = '';
+            }
+        }
+
+        const doctorData = {
+            name,
+            email,
+            image: imageUrl,
+            password: hashedPassword,
+            speciality,
+            degree,
+            experience,
+            about,
+            fees,
+            address: JSON.parse(address),
+            date: Date.now()
+        };
+
+        const newDoctor = new doctorModel(doctorData);
+        await newDoctor.save();
+
+        res.status(200).json({ success: true, message: "Doctor Added" });
+
+    } catch (error) {
+        console.error("Error adding doctor:", error);
+        res.status(500).json({ success: false, message: error.message || "Internal Server Error" });
     }
-
-    if (!validator.isEmail(email)) {
-      return res.status(400).json({ success: false, message: "Please enter a valid email" });
-    }
-
-    if (password.length < 8) {
-      return res.status(400).json({ success: false, message: "Please enter a strong password" });
-    }
-
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
-
-    const imageUpload = await cloudinary.uploader.upload(imageFile.path, { resource_type: "image" });
-    const imageUrl = imageUpload.secure_url;
-
-    const doctorData = {
-      name,
-      email,
-      image: imageUrl,
-      password: hashedPassword,
-      speciality,
-      degree,
-      experience,
-      about,
-      fees,
-      address: JSON.parse(address),
-      date: Date.now()
-    };
-
-    const newDoctor = new doctorModel(doctorData);
-    await newDoctor.save();
-
-    res.status(200).json({ success: true, message: "Doctor Added" });
-
-  } catch (error) {
-    console.error("Error adding doctor:", error);
-    res.status(500).json({ success: false, message: error.message || "Internal Server Error" });
-  }
 };
 
 // API for appointment cancellation
@@ -82,7 +100,7 @@ const appointmentCancel = async (req, res) => {
         const { appointmentId } = req.body
         const appointmentData = await appointmentModel.findById(appointmentId)
 
-        
+
         await appointmentModel.findByIdAndUpdate(appointmentId, { cancelled: true })
 
         // releasing doctor slot 
@@ -142,7 +160,7 @@ const adminDashboard = async (req, res) => {
             doctors: doctors.length,
             appointments: appointments.length,
             patients: users.length,
-            latestAppointments: appointments.reverse().slice(0,5)
+            latestAppointments: appointments.reverse().slice(0, 5)
         }
 
         res.json({ success: true, dashData })
@@ -154,4 +172,4 @@ const adminDashboard = async (req, res) => {
 }
 
 
-export {loginAdmin, addDoctor, allDoctors, appointmentsAdmin, appointmentCancel, adminDashboard}
+export { loginAdmin, addDoctor, allDoctors, appointmentsAdmin, appointmentCancel, adminDashboard }

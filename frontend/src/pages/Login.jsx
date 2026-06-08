@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react'
+import React, { useContext, useState } from 'react'
 import { AppContext } from '../context/AppContext'
 import axios from 'axios'
 import { toast } from 'react-toastify'
@@ -24,6 +24,7 @@ const Login = () => {
       if (data.success) {
         localStorage.setItem('token', data.token)
         setToken(data.token)
+        navigate('/')
       } else {
         toast.error(data.message)
       }
@@ -35,6 +36,7 @@ const Login = () => {
       if (data.success) {
         localStorage.setItem('token', data.token)
         setToken(data.token)
+        navigate('/')
       } else {
         toast.error(data.message)
       }
@@ -45,11 +47,7 @@ const Login = () => {
 
   }
 
-  useEffect(() => {
-    if (token) {
-      navigate('/')
-    }
-  }, [token])
+
 
   return (
     <form onSubmit={onSubmitHandler} className='min-h-[80vh] flex items-center'>

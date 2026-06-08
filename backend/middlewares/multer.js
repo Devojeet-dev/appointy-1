@@ -1,11 +1,7 @@
 import multer from "multer";
 
-const storage = multer.diskStorage({
-    filename: function (req, file, callback) {
-        callback(null, file.originalname)
-    }
-});
+// Use memoryStorage so req.file.buffer is available for direct Cloudinary stream upload.
+// diskStorage without a `destination` writes to an OS temp dir whose path is unreliable on Windows.
+const upload = multer({ storage: multer.memoryStorage() });
 
-const upload = multer({ storage })
-
-export default upload
+export default upload;
